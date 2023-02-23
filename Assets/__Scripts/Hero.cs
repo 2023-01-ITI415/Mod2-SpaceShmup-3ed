@@ -25,9 +25,9 @@ public class Hero : MonoBehaviour {
     // Declare a new delegate type WeaponFireDelegate
     public delegate void WeaponFireDelegate();
     // Create a WeaponFireDelegate field named fireDelegate.
-    public WeaponFireDelegate fireDelegate;
+    public WeaponFireDelegate fireEvent;
 
-	void Start()
+	void Awake()
     {
         if (S == null)
         {
@@ -37,7 +37,7 @@ public class Hero : MonoBehaviour {
         {
             Debug.LogError("Hero.Awake() - Attempted to assign second Hero.S!");
         }
-        //fireDelegate += TempFire;
+        fireEvent += TempFire;
 
         // Reset the weapons to start _Hero with 1 blaster
         ClearWeapons();
@@ -63,10 +63,10 @@ public class Hero : MonoBehaviour {
         // Use the fireDelegate to fire Weapons
         // First, make sure the button is pressed: Axis("Jump")
         // Then ensure that fireDelegate isn't null to avoid an error
-        if (Input.GetAxis("Jump") == 1 && fireDelegate != null)
+        if (Input.GetAxis("Jump") == 1 && fireEvent != null)
         {
-            //fireDelegate();
-            TempFire();
+            fireEvent();
+            //TempFire();
         }
     }
 
@@ -75,7 +75,11 @@ public class Hero : MonoBehaviour {
         GameObject projGO = Instantiate < GameObject>(projectilePrefab);
         projGO.transform.position = transform.position;
         Rigidbody rigidB = projGO.GetComponent<Rigidbody>();
-        rigidB.velocity = Vector3.up * projectileSpeed;
+
+        ProjectileHero proj = projGO.GetComponent<ProjectileHero>();
+        proj.type = eWeaponType.blaster;
+        float tSpeed = Main.GET_WEAPON_DEFINITION(proj.type).velocity;
+        rigidB.velocity = Vector3.up * tSpeed;
 
     }
 
