@@ -8,10 +8,12 @@ public class Main : MonoBehaviour {
     static public Main S; // A singleton for Main
     static Dictionary<WeaponType, WeaponDefinition> WEAP_DICT;
 
-    [Header("Set in Inspector")]
+    [Header("Inscribed")]
     public GameObject[] prefabEnemies; // Array of Enemy prefabs
     public float enemySpawnPerSecond = 0.5f; // # Enemies/second
-    public float enemyDefaultPadding = 1.5f; // Padding for position
+    public float enemyInsetDefault = 1.5f; // Padding for position
+    public float gameRestartDelay = 2;
+
     public WeaponDefinition[] weaponDefinitions;
     public GameObject prefabPowerUp;
     public WeaponType[] powerUpFrequency = new WeaponType[]
@@ -48,7 +50,7 @@ public class Main : MonoBehaviour {
         bndCheck = GetComponent<BoundsCheck>();
 
         // Invoke SpawnEnemy() once (in 2 seconds, based on default values)
-        Invoke("SpawnEnemy", 1f / enemySpawnPerSecond);
+        Invoke(nameof(SpawnEnemy), 1f / enemySpawnPerSecond);
 
         // A generic Dictionary with WeaponType as the key
         WEAP_DICT = new Dictionary<WeaponType, WeaponDefinition>();
@@ -64,36 +66,43 @@ public class Main : MonoBehaviour {
         int ndx = Random.Range(0, prefabEnemies.Length);
         GameObject go = Instantiate<GameObject>(prefabEnemies[ndx]);
 
-        // Position the ENemy above the screen with a random x position
-        float enemyPadding = enemyDefaultPadding;
+        // Position the Enemy above the screen with a random x position
+        float enemyInset = enemyInsetDefault;
         if (go.GetComponent<BoundsCheck>() != null)
         {
-            enemyPadding = Mathf.Abs(go.GetComponent<BoundsCheck>().radius);
+            enemyInset = Mathf.Abs(go.GetComponent<BoundsCheck>().radius);
         }
 
         // Set the initial position for the spawned Enemy
         Vector3 pos = Vector3.zero;
-        float xMin = -bndCheck.camWidth + enemyPadding;
-        float xMax = bndCheck.camWidth - enemyPadding;
+        float xMin = -bndCheck.camWidth + enemyInset;
+        float xMax = bndCheck.camWidth - enemyInset;
         pos.x = Random.Range(xMin, xMax);
-        pos.y = bndCheck.camHeight + enemyPadding;
+        pos.y = bndCheck.camHeight + enemyInset;
         go.transform.position = pos;
 
         // Invoke SpawnEnemy() again
-        Invoke("SpawnEnemy", 1f / enemySpawnPerSecond);
+        Invoke(nameof(SpawnEnemy), 1f / enemySpawnPerSecond);
     }
 
-    public void DelayedRestart(float delay)
+    public void DelayedRestart()
     {
         // Invoke the Restart() method in delay seconds
-        Invoke("Restart", delay);
+        Invoke(nameof(Restart), gameRestartDelay);
     }
 
     public void Restart()
     {
         // Reload _Scene_0 to restart the game
-        SceneManager.LoadScene("_Scene_0");
+        SceneManager.LoadScene("__Scene_0");
     }
+
+    static public void HERO_DIED()
+    {
+        S.DelayedRestart();
+    }
+
+
     ///<summary>
     ///Static function that gets a WeaponDefinition from the WEAP_DICT static
     ///protected field of the main class.

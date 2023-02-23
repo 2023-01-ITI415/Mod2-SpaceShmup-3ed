@@ -84,11 +84,11 @@ public class PowerUp : MonoBehaviour {
             letter.color = c;
         }
 
-        if (!bndCheck.isOnScreen)
-        {
-            // If the PowerUp has drifted entirely off screen, destroy it
-            Destroy(gameObject);
-        }
+        //if (!bndCheck.isOnScreen)
+        //{
+        //    // If the PowerUp has drifted entirely off screen, destroy it
+        //    Destroy(gameObject);
+        //}
     }
 
     public void SetType(WeaponType wt)

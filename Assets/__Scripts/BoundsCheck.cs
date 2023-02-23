@@ -7,12 +7,28 @@ using UnityEngine;
 /// Note that this ONLY works for an orthographic Main Camera at [0,0,0].
 /// </summary>
 public class BoundsCheck : MonoBehaviour {
-    [Header("Set in Inspector")]
+
+    [System.Flags]
+    public enum eScreenLocs
+    {
+        onScreen = 0,
+        offRight = 1,
+        offLeft  = 2,
+        offUp    = 4,
+        offDown  = 8
+    }
+
+    public enum eType { center, inset, outset};
+
+    [Header("Inscribed")]
+    public eType boundsType = eType.center;
     public float radius = 1f;
     public bool keepOnScreen = true;
 
-    [Header("Set Dynamically")]
-    public bool isOnScreen = true;
+
+    [Header("Dynamic")]
+    public eScreenLocs screenLocs = eScreenLocs.onScreen;
+
     public float camWidth;
     public float camHeight;
     [HideInInspector]
@@ -26,44 +42,59 @@ public class BoundsCheck : MonoBehaviour {
 
     void LateUpdate()
     {
+
+        float checkRadius = 0;
+        if (boundsType == eType.inset) checkRadius = -radius;
+        if (boundsType == eType.outset) checkRadius = radius;
+
         Vector3 pos = transform.position;
-        isOnScreen = true;
-        offRight = offLeft = offUp = offDown = false;
+        screenLocs = eScreenLocs.onScreen;
+       
 
-        if (pos.x > camWidth - radius)
+        if (pos.x > camWidth + checkRadius)
         {
-            pos.x = camWidth - radius;
-            offRight = true;
+            pos.x = camWidth - checkRadius;
+            screenLocs |= eScreenLocs.offRight; 
         }
 
-        if (pos.x < -camWidth + radius)
+        if (pos.x < -camWidth + checkRadius)
         {
-            pos.x = -camWidth + radius;
-            offLeft = true;
+            pos.x = -camWidth + checkRadius;
+            screenLocs |= eScreenLocs.offLeft;
         }
 
-        if (pos.y > camHeight - radius)
+        if (pos.y > camHeight + checkRadius)
         {
-            pos.y = camHeight - radius;
-            offUp = true;
+            pos.y = camHeight - checkRadius;
+            screenLocs |= eScreenLocs.offUp;
         }
 
-        if (pos.y < -camHeight + radius)
+        if (pos.y < -camHeight - checkRadius)
         {
-            pos.y = -camHeight + radius;
-            offDown = true;
+            pos.y = -camHeight + checkRadius;
+            screenLocs |= eScreenLocs.offDown;
         }
 
-        isOnScreen = !(offRight || offLeft || offUp || offDown);
         if (keepOnScreen && !isOnScreen)
         {
             transform.position = pos;
-            isOnScreen = true;
-            offRight = offLeft = offUp = offDown = false;
+            screenLocs = eScreenLocs.onScreen;
         }
-
-        transform.position = pos;
     }
+
+
+    public bool isOnScreen
+    {
+        get { return (screenLocs == eScreenLocs.onScreen); }
+    }
+
+
+    public bool LocIs(eScreenLocs checkLoc)
+    {
+        if (checkLoc == eScreenLocs.onScreen) return isOnScreen;
+        return ((screenLocs & checkLoc) == checkLoc);
+    }
+
 
     // Draw the bounds in the Scene pane using OnDrawGizmos()
     void OnDrawGizmos()

@@ -108,7 +108,7 @@ public class Weapon : MonoBehaviour {
         {
             return;
         }
-        Projectile p;
+        ProjectileHero p;
         Vector3 vel = Vector3.up * def.velocity;
         if (transform.up.y < 0)
         {
@@ -134,7 +134,7 @@ public class Weapon : MonoBehaviour {
         }
     }
 
-    public Projectile MakeProjectile()
+    public ProjectileHero MakeProjectile()
     {
         GameObject go = Instantiate<GameObject>(def.projectilePrefab);
         if(transform.parent.gameObject.tag == "Hero")
@@ -149,7 +149,7 @@ public class Weapon : MonoBehaviour {
         }
         go.transform.position = collar.transform.position;
         go.transform.SetParent(PROJECTILE_ANCHOR, true);
-        Projectile p = go.GetComponent<Projectile>();
+        ProjectileHero p = go.GetComponent<ProjectileHero>();
         p.type = type;
         lastShotTime = Time.time;
         return p;

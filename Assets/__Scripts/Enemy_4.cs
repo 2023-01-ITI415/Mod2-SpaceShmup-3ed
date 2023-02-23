@@ -138,13 +138,13 @@ public class Enemy_4 : Enemy {
         switch (other.tag)
         {
             case "ProjectileHero":
-                Projectile p = other.GetComponent<Projectile>();
+                ProjectileHero p = other.GetComponent<ProjectileHero>();
                 // IF this Enemy is off screen, don't damage it.
-                if (!bndCheck.isOnScreen)
-                {
-                    Destroy(other);
-                    break;
-                }
+                //if (!bndCheck.isOnScreen)
+                //{
+                //    Destroy(other);
+                //    break;
+                //}
 
                 // Hurt this Enemy
                 GameObject goHit = coll.contacts[0].thisCollider.gameObject;

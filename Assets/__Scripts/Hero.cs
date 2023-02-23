@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Hero : MonoBehaviour {
-    static public Hero S; // Singleton
+    static public Hero S { get; private set; } // Singleton
 
-    [Header("Set in Inspector")]
+    [Header("Inscribed")]
     // These fields control the movement of the ship
     public float speed = 30;
     public float rollMult = -45;
@@ -15,11 +15,11 @@ public class Hero : MonoBehaviour {
     public float projectileSpeed = 40;
     public Weapon[] weapons;
 
-    [Header("Set Dynamically")]
-    [SerializeField]
-    public float _shieldLevel = 1;
+    [Header("Dynamic")] [Range(0,4)]
+    
+    private float _shieldLevel = 1;
 
-    // This variable holds a reference to the last triggering GameObject
+    [Tooltip ("This variable holds a reference to the last triggering GameObject")]
     private GameObject lastTriggerGo = null;
 
     // Declare a new delegate type WeaponFireDelegate
@@ -65,15 +65,25 @@ public class Hero : MonoBehaviour {
         // Then ensure that fireDelegate isn't null to avoid an error
         if (Input.GetAxis("Jump") == 1 && fireDelegate != null)
         {
-            fireDelegate();
+            //fireDelegate();
+            TempFire();
         }
+    }
+
+    void TempFire()
+    {
+        GameObject projGO = Instantiate < GameObject>(projectilePrefab);
+        projGO.transform.position = transform.position;
+        Rigidbody rigidB = projGO.GetComponent<Rigidbody>();
+        rigidB.velocity = Vector3.up * projectileSpeed;
+
     }
 
     private void OnTriggerEnter(Collider other)
     {
         Transform rootT = other.gameObject.transform.root;
         GameObject go = rootT.gameObject;
-        print("Triggered: " + go.name);
+        //print("Triggered: " + go.name);
 
         // Make sure it's not the same triggering go as last time
         if (go == lastTriggerGo)
@@ -82,7 +92,9 @@ public class Hero : MonoBehaviour {
         }
         lastTriggerGo = go;
 
-        if(go.tag == "Enemy")
+        Enemy enemy = go.GetComponent<Enemy>();
+
+        if(enemy != null)
         {
             shieldLevel--;
             Destroy(go);
@@ -142,7 +154,7 @@ public class Hero : MonoBehaviour {
             {
                 Destroy(this.gameObject);
                 // Tell Main.S to restart the game after a delay
-                Main.S.DelayedRestart(gameRestartDelay);
+                Main.HERO_DIED();
             }
         }
     }

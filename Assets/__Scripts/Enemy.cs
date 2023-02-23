@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent (typeof (BoundsCheck))]
 public class Enemy : MonoBehaviour {
 
-    [Header("Set in Inspector: Enemy")]
+    [Header("Inscribed: Enemy")]
     public float speed = 10f; // The speed in m/s
     public float fireRate = 0.3f; // Seconds/shot (Unused)
     public float health = 10;
@@ -21,18 +22,6 @@ public class Enemy : MonoBehaviour {
 
     protected BoundsCheck bndCheck;
 
-    private void Awake()
-    {
-        bndCheck = GetComponent<BoundsCheck>();
-        // Get materials and colors for this GameObject and its children
-        materials = Utils.GetAllMaterials(gameObject);
-        originalColors = new Color[materials.Length];
-        for (int i=0; i<materials.Length; i++)
-        {
-            originalColors[i] = materials[i].color;
-        }
-    }
-
     // This is a property: A method that acts like a field
     public Vector3 pos
     {
@@ -46,6 +35,20 @@ public class Enemy : MonoBehaviour {
         }
     }
 
+    private void Awake()
+    {
+        bndCheck = GetComponent<BoundsCheck>();
+        // Get materials and colors for this GameObject and its children
+        materials = Utils.GetAllMaterials(gameObject);
+        originalColors = new Color[materials.Length];
+        for (int i=0; i<materials.Length; i++)
+        {
+            originalColors[i] = materials[i].color;
+        }
+    }
+
+ 
+
     void Update()
     {
         Move();
@@ -55,11 +58,12 @@ public class Enemy : MonoBehaviour {
             UnShowDamage();
         }
 
-        if (bndCheck != null && bndCheck.offDown)
+        if (bndCheck.LocIs(BoundsCheck.eScreenLocs.offDown))
         {
-            // We're off the bottom, so destroy this GameObject
-            Destroy(gameObject);
+                // We're off the bottom, so destroy this GameObject
+                Destroy(gameObject);
         }
+
     }
 
     public virtual void Move()
@@ -72,39 +76,46 @@ public class Enemy : MonoBehaviour {
     private void OnCollisionEnter(Collision coll)
     {
         GameObject otherGO = coll.gameObject;
-        switch (otherGO.tag)
+
+        if(otherGO.GetComponent<ProjectileHero>()!= null)
         {
-            case "ProjectileHero":
-                Projectile p = otherGO.GetComponent<Projectile>();
-                // If this Enemy is off screen, don't damage it.
-                if (!bndCheck.isOnScreen)
-                {
-                    Destroy(otherGO);
-                    break;
-                }
-
-                // Hurt this Enemy
-                ShowDamage();
-                // Get the damage amount from the Main WEAP_DICT
-                health -= Main.GetWeaponDefinition(p.type).damageOnHit;
-                if(health <= 0)
-                {
-                    // Tell the Main singleton that this ship was destroyed
-                    if (!notifiedOfDestruction)
-                    {
-                        Main.S.ShipDestroyed(this);
-                    }
-                    notifiedOfDestruction = true;
-                    // Destroy this enemy
-                    Destroy(this.gameObject);
-                }
-                Destroy(otherGO);
-                break;
-
-            default:
-                print("Enemy hit by non-ProjectileHero: " + otherGO.name);
-                break;
+            Destroy(otherGO);
+            Destroy(gameObject);
         }
+
+        //switch (otherGO.tag)
+        //{
+        //    case "ProjectileHero":
+        //        Projectile p = otherGO.GetComponent<Projectile>();
+        //        // If this Enemy is off screen, don't damage it.
+        //        //if (!bndCheck.isOnScreen)
+        //        //{
+        //        //    Destroy(otherGO);
+        //        //    break;
+        //        //}
+
+        //        // Hurt this Enemy
+        //        ShowDamage();
+        //        // Get the damage amount from the Main WEAP_DICT
+        //        health -= Main.GetWeaponDefinition(p.type).damageOnHit;
+        //        if(health <= 0)
+        //        {
+        //            // Tell the Main singleton that this ship was destroyed
+        //            if (!notifiedOfDestruction)
+        //            {
+        //                Main.S.ShipDestroyed(this);
+        //            }
+        //            notifiedOfDestruction = true;
+        //            // Destroy this enemy
+        //            Destroy(this.gameObject);
+        //        }
+        //        Destroy(otherGO);
+        //        break;
+
+        //    default:
+        //        print("Enemy hit by non-ProjectileHero: " + otherGO.name);
+        //        break;
+        //}
     }
 
     void ShowDamage()
