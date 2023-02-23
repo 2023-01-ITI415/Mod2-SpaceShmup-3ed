@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class Enemy_2 : Enemy {
 
-    [Header("Set in Inspector: Enemy_2")]
-    // Determines how much the sine wave will affect movement
+    [Header("Inscribed: Enemy_2")]
+    [Tooltip ("Determines how much the sine wave will affect movement")]
     public float sinEccentricity = 0.6f;
     public float lifeTime = 10;
 
-    [Header("Set Dynamically: Enemy_2")]
+    [Header("Dynamic: Enemy_2")]
     // Enemy_2 uses a Sin wave to modify a 2-point linear interpolation
-    public Vector3 p0;
-    public Vector3 p1;
-    public float birthTime;
+    [SerializeField] private Vector3 p0;
+    [SerializeField] private Vector3 p1;
+    [SerializeField] private float birthTime;
 
     private void Start()
     {
@@ -58,5 +58,18 @@ public class Enemy_2 : Enemy {
 
         // Interpolate the two linear interpolation points
         pos = ((1 - u) * p0) + (u * p1);
+    }
+
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawSphere(p0, 1.0f);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawCube(p1, Vector3.one);
+        Gizmos.color = Color.Lerp(Color.cyan, Color.yellow,
+            (Time.time - birthTime) / lifeTime);
+        Gizmos.DrawLine(p0, p1);
+
     }
 }
