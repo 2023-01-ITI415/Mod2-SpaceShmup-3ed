@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent (typeof (BoundsCheck))]
-public class Enemy : MonoBehaviour {
+[RequireComponent(typeof(BoundsCheck))]
+public class Enemy : MonoBehaviour
+{
 
     [Header("Inscribed: Enemy")]
     public float speed = 10f; // The speed in m/s
@@ -41,27 +42,27 @@ public class Enemy : MonoBehaviour {
         // Get materials and colors for this GameObject and its children
         materials = Utils.GetAllMaterials(gameObject);
         originalColors = new Color[materials.Length];
-        for (int i=0; i<materials.Length; i++)
+        for (int i = 0; i < materials.Length; i++)
         {
             originalColors[i] = materials[i].color;
         }
     }
 
- 
+
 
     void Update()
     {
         Move();
 
-        if(showingDamage && Time.time > damageDoneTime)
+        if (showingDamage && Time.time > damageDoneTime)
         {
             UnShowDamage();
         }
 
         if (bndCheck.LocIs(BoundsCheck.eScreenLocs.offDown))
         {
-                // We're off the bottom, so destroy this GameObject
-                Destroy(gameObject);
+            // We're off the bottom, so destroy this GameObject
+            Destroy(gameObject);
         }
 
     }
@@ -77,46 +78,34 @@ public class Enemy : MonoBehaviour {
     {
         GameObject otherGO = coll.gameObject;
 
-        if(otherGO.GetComponent<ProjectileHero>()!= null)
+        ProjectileHero p = otherGO.GetComponent<ProjectileHero>();
+
+        if (p != null) //it's a Projectile Hero
         {
+
+            //If this Enemy is on screen,  damage it.
+            if (bndCheck.isOnScreen)
+            {
+                // Get the damage amount from the Main WEAP_DICT
+                health -= Main.GET_WEAPON_DEFINITION(p.type).damageOnHit;
+                if (health <= 0)
+                {
+                    //destroy this enemy
+                    Destroy(this.gameObject);
+                }
+            }
+            // Destroy the projectile either way
             Destroy(otherGO);
-            Destroy(gameObject);
+
+            // Hurt this Enemy
+            // ShowDamage();
         }
-
-        //switch (otherGO.tag)
-        //{
-        //    case "ProjectileHero":
-        //        Projectile p = otherGO.GetComponent<Projectile>();
-        //        // If this Enemy is off screen, don't damage it.
-        //        //if (!bndCheck.isOnScreen)
-        //        //{
-        //        //    Destroy(otherGO);
-        //        //    break;
-        //        //}
-
-        //        // Hurt this Enemy
-        //        ShowDamage();
-        //        // Get the damage amount from the Main WEAP_DICT
-        //        health -= Main.GetWeaponDefinition(p.type).damageOnHit;
-        //        if(health <= 0)
-        //        {
-        //            // Tell the Main singleton that this ship was destroyed
-        //            if (!notifiedOfDestruction)
-        //            {
-        //                Main.S.ShipDestroyed(this);
-        //            }
-        //            notifiedOfDestruction = true;
-        //            // Destroy this enemy
-        //            Destroy(this.gameObject);
-        //        }
-        //        Destroy(otherGO);
-        //        break;
-
-        //    default:
-        //        print("Enemy hit by non-ProjectileHero: " + otherGO.name);
-        //        break;
-        //}
+        else
+        {
+            print("Enemy hit by non-ProjectileHero: " + otherGO.name);
+        }
     }
+
 
     void ShowDamage()
     {
@@ -130,7 +119,7 @@ public class Enemy : MonoBehaviour {
 
     void UnShowDamage()
     {
-        for (int i=0; i<materials.Length; i++)
+        for (int i = 0; i < materials.Length; i++)
         {
             materials[i].color = originalColors[i];
         }
