@@ -13,7 +13,7 @@ public class PowerUp : MonoBehaviour {
     public float fadeTime = 4f; // Seconds it will then fade
 
     [Header("Set Dynamically")]
-    public WeaponType type; // The type of the PowerUp 
+    public eWeaponType type; // The type of the PowerUp 
     public GameObject cube; // Reference to the Cube child
     public TextMesh letter; // Reference to the TextMesh
     public Vector3 rotPerSecond; // Euler rotation speed
@@ -91,10 +91,10 @@ public class PowerUp : MonoBehaviour {
         //}
     }
 
-    public void SetType(WeaponType wt)
+    public void SetType(eWeaponType wt)
     {
         // Grab the WeaponDefinition from Main
-        WeaponDefinition def = Main.GetWeaponDefinition(wt);
+        WeaponDefinition def = Main.GET_WEAPON_DEFINITION(wt);
         // Set the color of the Cube child
         cubeRend.material.color = def.color;
         //letter.color = def.color; // We could colorize the letter too

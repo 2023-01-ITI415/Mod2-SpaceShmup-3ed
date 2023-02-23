@@ -41,7 +41,7 @@ public class Hero : MonoBehaviour {
 
         // Reset the weapons to start _Hero with 1 blaster
         ClearWeapons();
-        weapons[0].SetType(WeaponType.blaster);
+        weapons[0].SetType(eWeaponType.blaster);
     }
 	
 	// Update is called once per frame
@@ -115,7 +115,7 @@ public class Hero : MonoBehaviour {
         PowerUp pu = go.GetComponent<PowerUp>();
         switch (pu.type)
         {
-            case WeaponType.shield:
+            case eWeaponType.shield:
                 shieldLevel++;
                 break;
 
@@ -163,7 +163,7 @@ public class Hero : MonoBehaviour {
     {
         for (int i=0; i<weapons.Length; i++)
         {
-            if (weapons[i].type == WeaponType.none)
+            if (weapons[i].type == eWeaponType.none)
             {
                 return (weapons[i]);
             }
@@ -175,7 +175,7 @@ public class Hero : MonoBehaviour {
     {
         foreach (Weapon w in weapons)
         {
-            w.SetType(WeaponType.none);
+            w.SetType(eWeaponType.none);
         }
     }
 }

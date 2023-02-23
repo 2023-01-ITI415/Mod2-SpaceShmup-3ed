@@ -8,13 +8,13 @@ public class ProjectileHero : MonoBehaviour {
     private BoundsCheck bndCheck;
     private Renderer rend;
 
-    [Header("Set Dynamically")]
+    [Header("Dynamic")]
     public Rigidbody rigid;
     [SerializeField]
-    private WeaponType _type;
+    private eWeaponType _type;
 
     // This public property masks the field _type and takes action when it is set
-    public WeaponType type
+    public eWeaponType type
     {
         get
         {
@@ -45,11 +45,23 @@ public class ProjectileHero : MonoBehaviour {
     /// WeaponDefinition.
     /// </summary>
     /// <param name="eType">The WeaponType to use.</param>
-    public void SetType(WeaponType eType)
+    public void SetType(eWeaponType eType)
     {
         // Set the _type
         _type = eType;
-        WeaponDefinition def = Main.GetWeaponDefinition(_type);
+        WeaponDefinition def = Main.GET_WEAPON_DEFINITION(_type);
         rend.material.color = def.projectileColor;
     }
+
+    ///<summary>
+    ///Allows Weapon to easily set the velocity of this ProjectileHero
+    /// </summary>
+    ///
+    public Vector3 vel
+    {
+        get { return rigid.velocity; }
+        set { rigid.velocity = value; }
+
+    }
+
 }

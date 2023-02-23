@@ -7,7 +7,7 @@ using UnityEngine;
 /// It also includes a "shield" type to allow a shield power-up.
 /// Items marked [NI] below are Not Implemented in the IGDPD book.
 /// </summary>
-public enum WeaponType
+public enum eWeaponType
 {
     none, // The default / no weapons
     blaster, // A simple blaster
@@ -26,10 +26,10 @@ public enum WeaponType
 [System.Serializable]
 public class WeaponDefinition
 {
-    public WeaponType type = WeaponType.none;
+    public eWeaponType type = eWeaponType.none;
     public string letter; // Letter to show on the power-up
     public Color color = Color.white; // Color of Collar & power-up
-    public GameObject projectilePrefab; // Prefab for projectiles
+    public GameObject weaponModelPrefab; // Prefab for projectiles
     public Color projectileColor = Color.white;
     public float damageOnHit = 0; // Amount of damage caused
     public float continuousDamage = 0; // Damage per second (Laser)
@@ -41,7 +41,7 @@ public class Weapon : MonoBehaviour {
 
     [Header("Set Dynamically")]
     [SerializeField]
-    private WeaponType _type = WeaponType.none;
+    private eWeaponType _type = eWeaponType.none;
     public WeaponDefinition def;
     public GameObject collar;
     public float lastShotTime; // Time last shot was fired
@@ -70,7 +70,7 @@ public class Weapon : MonoBehaviour {
         }
     }
 
-    public WeaponType type
+    public eWeaponType type
     {
         get
         {
@@ -82,10 +82,10 @@ public class Weapon : MonoBehaviour {
         }
     }
 
-    public void SetType(WeaponType wt)
+    public void SetType(eWeaponType wt)
     {
         _type = wt;
-        if (type == WeaponType.none)
+        if (type == eWeaponType.none)
         {
             this.gameObject.SetActive(false);
             return;
@@ -94,7 +94,7 @@ public class Weapon : MonoBehaviour {
         {
             this.gameObject.SetActive(true);
         }
-        def = Main.GetWeaponDefinition(_type);
+        def = Main.GET_WEAPON_DEFINITION(_type);
         collarRend.material.color = def.color;
         lastShotTime = 0; // You can fire immediately after _type is set.
     }
@@ -116,12 +116,12 @@ public class Weapon : MonoBehaviour {
         }
         switch (type)
         {
-            case WeaponType.blaster:
+            case eWeaponType.blaster:
                 p = MakeProjectile();
                 p.rigid.velocity = vel;
                 break;
 
-            case WeaponType.spread:
+            case eWeaponType.spread:
                 p = MakeProjectile(); // Make middle Projectile
                 p.rigid.velocity = vel;
                 p = MakeProjectile(); // Make right Projectile
@@ -136,7 +136,7 @@ public class Weapon : MonoBehaviour {
 
     public ProjectileHero MakeProjectile()
     {
-        GameObject go = Instantiate<GameObject>(def.projectilePrefab);
+        GameObject go = Instantiate<GameObject>(def.weaponModelPrefab);
         if(transform.parent.gameObject.tag == "Hero")
         {
             go.tag = "ProjectileHero";

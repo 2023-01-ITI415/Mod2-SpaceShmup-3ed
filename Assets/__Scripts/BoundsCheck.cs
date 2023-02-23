@@ -80,6 +80,8 @@ public class BoundsCheck : MonoBehaviour {
             transform.position = pos;
             screenLocs = eScreenLocs.onScreen;
         }
+
+
     }
 
 

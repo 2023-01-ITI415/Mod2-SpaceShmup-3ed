@@ -171,7 +171,7 @@ public class Enemy_4 : Enemy {
 
                 // It's not protected, so make it take damage
                 // Get the damage amount from the Projectile.type and Main.W_DEFS
-                prtHit.health -= Main.GetWeaponDefinition(p.type).damageOnHit;
+                prtHit.health -= Main.GET_WEAPON_DEFINITION(p.type).damageOnHit;
                 // Show damage on the part
                 ShowLocalizedDamage(prtHit.mat);
                 if(prtHit.health <= 0)

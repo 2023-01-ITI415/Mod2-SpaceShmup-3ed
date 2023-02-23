@@ -6,9 +6,10 @@ using UnityEngine.SceneManagement;
 public class Main : MonoBehaviour {
 
     static public Main S; // A singleton for Main
-    static Dictionary<WeaponType, WeaponDefinition> WEAP_DICT;
+    static Dictionary<eWeaponType, WeaponDefinition> WEAP_DICT;
 
     [Header("Inscribed")]
+    public bool spawnEnemies = true;
     public GameObject[] prefabEnemies; // Array of Enemy prefabs
     public float enemySpawnPerSecond = 0.5f; // # Enemies/second
     public float enemyInsetDefault = 1.5f; // Padding for position
@@ -16,9 +17,9 @@ public class Main : MonoBehaviour {
 
     public WeaponDefinition[] weaponDefinitions;
     public GameObject prefabPowerUp;
-    public WeaponType[] powerUpFrequency = new WeaponType[]
+    public eWeaponType[] powerUpFrequency = new eWeaponType[]
     {
-        WeaponType.blaster, WeaponType.blaster, WeaponType.spread, WeaponType.shield
+        eWeaponType.blaster, eWeaponType.blaster, eWeaponType.spread, eWeaponType.shield
     };
 
     private BoundsCheck bndCheck;
@@ -31,7 +32,7 @@ public class Main : MonoBehaviour {
             // Choose which PowerUp to pick
             // Pick one from the possibilities in powerUpFrequency
             int ndx = Random.Range(0, powerUpFrequency.Length);
-            WeaponType puType = powerUpFrequency[ndx];
+            eWeaponType puType = powerUpFrequency[ndx];
             // Spawn a PowerUp
             GameObject go = Instantiate(prefabPowerUp) as GameObject;
             PowerUp pu = go.GetComponent<PowerUp>();
@@ -53,7 +54,7 @@ public class Main : MonoBehaviour {
         Invoke(nameof(SpawnEnemy), 1f / enemySpawnPerSecond);
 
         // A generic Dictionary with WeaponType as the key
-        WEAP_DICT = new Dictionary<WeaponType, WeaponDefinition>();
+        WEAP_DICT = new Dictionary<eWeaponType, WeaponDefinition>();
         foreach(WeaponDefinition def in weaponDefinitions)
         {
             WEAP_DICT[def.type] = def;
@@ -62,6 +63,13 @@ public class Main : MonoBehaviour {
 
     public void SpawnEnemy()
     {
+        if(!spawnEnemies)
+        {
+            Invoke(nameof(SpawnEnemy), 1f / enemySpawnPerSecond);
+            return;
+        }
+
+
         // Pick a random Enemy prefab to instantiate
         int ndx = Random.Range(0, prefabEnemies.Length);
         GameObject go = Instantiate<GameObject>(prefabEnemies[ndx]);
@@ -111,7 +119,7 @@ public class Main : MonoBehaviour {
     /// the WeaponType passed in, returns a new WeaponDefinition with a
     /// WeaponType of none..</returns>
     /// <param name="wt">The WeaponType of the desired WeaponDefinition</param>
-    static public WeaponDefinition GetWeaponDefinition(WeaponType wt)
+    static public WeaponDefinition GET_WEAPON_DEFINITION(eWeaponType wt)
     {
         // Check to make sure that the key exists in the Dictionary
         // Attempting to retrieve a key that didn't exist would throw an error,
