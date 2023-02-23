@@ -111,6 +111,8 @@ MonoBehaviour:
   damageDoneTime: 0
   notifiedOfDestruction: 0
   lifeTime: 5
+  midPointYRange: {x: 1.5, y: 3}
+  drawDebugInfo: 1
   points: []
   birthTime: 0
 --- !u!1001 &6217192625199160741

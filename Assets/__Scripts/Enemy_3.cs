@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy_3 : Enemy { // Enemy_3 extends Enemy
+public class Enemy_3 : Enemy
+{ // Enemy_3 extends Enemy
     // Enemy_3 will move following a Bezier curve, which is a linear
     // interpolation between more than two points.
-    [Header("Set in Inspector: Enemy_3")]
+    [Header("Inscribed: Enemy_3")]
     public float lifeTime = 5;
+    public Vector2 midPointYRange = new Vector2(1.5f, 3);
+    [Tooltip("If true, the bezier points and path are drawn")]
+    public bool drawDebugInfo;
 
-    [Header("Set Dynamically: Enemy_3")]
-    public Vector3[] points;
-    public float birthTime;
+    [Header("Enemy_3 private fields")]
+    [SerializeField] private Vector3[] points;
+    [SerializeField] private float birthTime;
 
     private void Start()
     {
@@ -25,19 +29,21 @@ public class Enemy_3 : Enemy { // Enemy_3 extends Enemy
 
         Vector3 v;
         // Pick a random middle position in the bottom half of the screen
-        v = Vector3.zero;
-        v.x = Random.Range(xMin, xMax);
-        v.y = -bndCheck.camHeight * Random.Range(2.75f, 2);
-        points[1] = v;
+        points[1] = Vector3.zero;
+        points[1].x = Random.Range(xMin, xMax);
+        float midYMult = Random.Range(midPointYRange[0], midPointYRange[1]);
+        points[1].y = -bndCheck.camHeight * midYMult;
 
         // Pick a random final position above the top of the screen
-        v = Vector3.zero;
-        v.y = pos.y;
-        v.x = Random.Range(xMin, xMax);
-        points[2] = v;
+        points[2] = Vector3.zero;
+        points[2].y = pos.y;
+        points[2].x = Random.Range(xMin, xMax);
+
 
         // Set the birthTime to the current time
         birthTime = Time.time;
+
+        if (drawDebugInfo) DrawDebug();
     }
 
     public override void Move()
@@ -52,11 +58,30 @@ public class Enemy_3 : Enemy { // Enemy_3 extends Enemy
             return;
         }
 
-        // Interpolate the three Bezier curve points
-        Vector3 p01, p12;
-        u = u - (0.2f * Mathf.Sin(u * Mathf.PI * 2));
-        p01 = ((1 - u) * points[0]) + (u * points[1]);
-        p12 = ((1 - u) * points[1]) + (u * points[2]);
-        pos = ((1 - u) * p01) + (u * p12);
+        u = u - 0.1f * Mathf.Sin(u * Mathf.PI * 2);
+
+        pos = Utils.Bezier(u, points);
     }
+
+
+    void DrawDebug()
+    {
+        Debug.DrawLine(points[0], points[1], Color.cyan, lifeTime);
+        Debug.DrawLine(points[1], points[2], Color.yellow, lifeTime);
+
+        // Draw the Bezier Curve
+        float numSections = 20;
+        Vector3 prevPoint = points[0];                                              // g
+        Color col;
+        Vector3 pt;
+        for (int i = 1; i < numSections; i++)
+        {                                   // h
+            float u = i / numSections;
+            pt = Utils.Bezier(u, points);
+            col = Color.Lerp(Color.cyan, Color.yellow, u);
+            Debug.DrawLine(prevPoint, pt, col, lifeTime);                         // i
+            prevPoint = pt;
+        }
+    }
+
 }
