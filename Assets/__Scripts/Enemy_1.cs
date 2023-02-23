@@ -10,7 +10,7 @@ public class Enemy_1 : Enemy {
     public float waveFrequency = 2;
     [Tooltip ("sine wave width in meters")]
     public float waveWidth = 4;
-    [Tooltip("Amount the ship will Roll left and right with sine wave")])]
+    [Tooltip("Amount the ship will Roll left and right with sine wave")]
     public float waveRotY = 45;
 
     private float x0; // The initial x value of pos
