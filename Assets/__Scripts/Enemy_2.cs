@@ -8,6 +8,7 @@ public class Enemy_2 : Enemy {
     [Tooltip ("Determines how much the sine wave will affect movement")]
     public float sinEccentricity = 0.6f;
     public float lifeTime = 10;
+    public AnimationCurve rotCurve;
 
     [Header("Dynamic: Enemy_2")]
     // Enemy_2 uses a Sin wave to modify a 2-point linear interpolation
@@ -52,6 +53,11 @@ public class Enemy_2 : Enemy {
             Destroy(this.gameObject);
             return;
         }
+
+        // use the animation curve to set the rotation about Y axis
+        float shipRot = rotCurve.Evaluate(u) * 360;
+        if (p0.x > p1.x) shipRot = -shipRot;
+        transform.rotation = Quaternion.Euler(0, shipRot, 0);
 
         // Adjust u by adding a U Curve based on a Sine wave
         u = u + sinEccentricity * (Mathf.Sin(u * Mathf.PI * 2));
