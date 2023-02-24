@@ -104,34 +104,34 @@ public class Hero : MonoBehaviour {
         }
     }
 
-    public void AbsorbPowerUp(GameObject go)
+    public void AbsorbPowerUp(PowerUp pUp)
     {
-        PowerUp pu = go.GetComponent<PowerUp>();
-        switch (pu.type)
+        
+        switch (pUp.type)
         {
             case eWeaponType.shield:
                 shieldLevel++;
                 break;
 
             default:
-                if(pu.type == weapons[0].type)
+                if(pUp.type == weapons[0].type)
                 {
                     Weapon w = GetEmptyWeaponSlot();
                     if(w != null)
                     {
                         // Set it to pu.type
-                        w.SetType(pu.type);
+                        w.SetType(pUp.type);
                     }
                 }
                 else
                 {
                     //If this is a different weapon type
                     ClearWeapons();
-                    weapons[0].SetType(pu.type);
+                    weapons[0].SetType(pUp.type);
                 }
                 break;
         }
-        pu.AbsorbedBy(gameObject);
+        pUp.AbsorbedBy(gameObject);
     }
 
     public float shieldLevel
