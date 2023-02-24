@@ -22,6 +22,7 @@ public class Enemy : MonoBehaviour
     public bool notifiedOfDestruction = false; // Will be used later
 
     protected BoundsCheck bndCheck;
+    protected bool calledShipDestroyed = false;
 
     // This is a property: A method that acts like a field
     public Vector3 pos
@@ -54,11 +55,6 @@ public class Enemy : MonoBehaviour
     {
         Move();
 
-        if (showingDamage && Time.time > damageDoneTime)
-        {
-            UnShowDamage();
-        }
-
         if (bndCheck.LocIs(BoundsCheck.eScreenLocs.offDown))
         {
             // We're off the bottom, so destroy this GameObject
@@ -90,39 +86,20 @@ public class Enemy : MonoBehaviour
                 health -= Main.GET_WEAPON_DEFINITION(p.type).damageOnHit;
                 if (health <= 0)
                 {
-                    //destroy this enemy
-                    Destroy(this.gameObject);
+                    if (!calledShipDestroyed)
+                    {
+                        calledShipDestroyed = true;
+                        Main.SHIP_DESTROYED(this);
+                    }
                 }
             }
             // Destroy the projectile either way
             Destroy(otherGO);
 
-            // Hurt this Enemy
-            // ShowDamage();
         }
         else
         {
             print("Enemy hit by non-ProjectileHero: " + otherGO.name);
         }
-    }
-
-
-    void ShowDamage()
-    {
-        foreach (Material m in materials)
-        {
-            m.color = Color.red;
-        }
-        showingDamage = true;
-        damageDoneTime = Time.time + showDamageDuration;
-    }
-
-    void UnShowDamage()
-    {
-        for (int i = 0; i < materials.Length; i++)
-        {
-            materials[i].color = originalColors[i];
-        }
-        showingDamage = false;
     }
 }
