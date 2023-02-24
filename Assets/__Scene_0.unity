@@ -513,9 +513,6 @@ MonoBehaviour:
   spawnEnemies: 1
   prefabEnemies:
   - {fileID: 8354716305585902020, guid: a69aa768d15cba34b96a5422e50dc9b4, type: 3}
-  - {fileID: 8354716305585902020, guid: a69aa768d15cba34b96a5422e50dc9b4, type: 3}
-  - {fileID: 3319825933102930435, guid: ac8336763c0c047aca9a469c10d3f448, type: 3}
-  - {fileID: 4070209521177695457, guid: 10ae278da906f451594d7989d76b6d15, type: 3}
   enemySpawnPerSecond: 1
   enemyInsetDefault: 1.5
   gameRestartDelay: 2
