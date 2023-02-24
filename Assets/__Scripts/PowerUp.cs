@@ -4,15 +4,17 @@ using UnityEngine;
 
 public class PowerUp : MonoBehaviour {
 
-    [Header("Set in Inspector")]
-    // This is an unusual but handy use of Vector2s. x holds a min value
-    // and y a max value for a Random.Range() that will be called later
+    [Header("Inscribed")]
+    // This is an unusual but handy use of Vector2s.
+    [Tooltip ("x holds a min value and y a max value for a Random.Range() call")]
     public Vector2 rotMinMax = new Vector2(15, 90);
+    [Tooltip("x holds a min value and y a max value for a Random.Range() call")]
     public Vector2 driftMinMax = new Vector2(.25f, 2);
-    public float lifeTime = 6f; // Seconds the PowerUp exists
+
+    public float lifeTime = 10f; // Seconds the PowerUp exists
     public float fadeTime = 4f; // Seconds it will then fade
 
-    [Header("Set Dynamically")]
+    [Header("Dynamic")]
     public eWeaponType type; // The type of the PowerUp 
     public GameObject cube; // Reference to the Cube child
     public TextMesh letter; // Reference to the TextMesh
@@ -21,17 +23,18 @@ public class PowerUp : MonoBehaviour {
 
     private Rigidbody rigid;
     private BoundsCheck bndCheck;
-    private Renderer cubeRend;
+    private Material cubeMat;
 
     private void Awake()
     {
         // Find the Cube reference
-        cube = transform.Find("Cube").gameObject;
+        cube = transform.GetChild(0).gameObject;
+
         // Find the TextMesh and other components
         letter = GetComponent<TextMesh>();
         rigid = GetComponent<Rigidbody>();
         bndCheck = GetComponent<BoundsCheck>();
-        cubeRend = cube.GetComponent<Renderer>();
+        cubeMat = cube.GetComponent<Renderer>().material;
 
         // Set a random elocity
         Vector3 vel = Random.onUnitSphere; // Get Random XYZ velocity
@@ -75,20 +78,20 @@ public class PowerUp : MonoBehaviour {
         // Use u to determine the alpha value of the Cube & Letter
         if (u > 0)
         {
-            Color c = cubeRend.material.color;
+            Color c = cubeMat.color;
             c.a = 1f - u;
-            cubeRend.material.color = c;
+            cubeMat.color = c;
             // Fade the letter too, just not as much
             c = letter.color;
             c.a = 1f - (u * 0.5f);
             letter.color = c;
         }
 
-        //if (!bndCheck.isOnScreen)
-        //{
-        //    // If the PowerUp has drifted entirely off screen, destroy it
-        //    Destroy(gameObject);
-        //}
+        if (!bndCheck.isOnScreen)
+        {
+            // If the PowerUp has drifted entirely off screen, destroy it
+            Destroy(gameObject);
+        }
     }
 
     public void SetType(eWeaponType wt)
@@ -96,7 +99,7 @@ public class PowerUp : MonoBehaviour {
         // Grab the WeaponDefinition from Main
         WeaponDefinition def = Main.GET_WEAPON_DEFINITION(wt);
         // Set the color of the Cube child
-        cubeRend.material.color = def.color;
+        cubeMat.color = def.color;
         //letter.color = def.color; // We could colorize the letter too
         letter.text = def.letter; // Set the letter that is shown
         type = wt; // Finally actually set the type

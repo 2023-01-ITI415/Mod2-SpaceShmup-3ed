@@ -27,7 +27,7 @@ public class Enemy_3 : Enemy
         float xMin = -bndCheck.camWidth + bndCheck.radius;
         float xMax = bndCheck.camWidth - bndCheck.radius;
 
-        Vector3 v;
+        
         // Pick a random middle position in the bottom half of the screen
         points[1] = Vector3.zero;
         points[1].x = Random.Range(xMin, xMax);
