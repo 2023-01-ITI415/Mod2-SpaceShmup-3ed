@@ -1,72 +1,56 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Part is another serializable data storage class just like WeaponDefinition
-/// </summary>
-[System.Serializable]
-public class Part
+[RequireComponent(typeof(EnemyShield))]
+public class Enemy_4 : Enemy
 {
-    // These three fields need to be defined in the Inspector pane
-    public string name; // The name of this part
-    public float health; // The amount of health this part has
-    public string[] protectedBy; // The other parts that protect this
+    [Header("Inscribed: Enemy 4")]
+    public float duration = 4f;
 
-    // These two fields are set automatically in Start().
-    // Caching like this makes it faster and easier to find these later
-    [HideInInspector] // Makes field on the next line not appear in the Inspector
-    public GameObject go; // The GameObject of this part
-    [HideInInspector]
-    public Material mat; // The Material to show damage
-}
+    private EnemyShield[] allShields;
+    private EnemyShield thisShield;
+    private Vector3 p0, p1; //points to move between
+    private float timeStart; //Birth time for the object
 
-public class Enemy_4 : Enemy {
 
-    [Header("Set in Inspector: Enemy_4")]
-    public Part[] parts; // The array of ship Parts
-
-    private Vector3 p0, p1; // The two points to interpolate
-    private float timeStart; // Birth time for this Enemy_4
-    private float duration = 4; // Duration of movement
-
-    private void Start()
+    // Start is called before the first frame update
+    void Start()
     {
-        // There is already an initial position chosen by Main.SpawnEnemy()
-        // so add it to points as the initial p0 & p1
+        allShields = GetComponentsInChildren<EnemyShield>();
+        thisShield = GetComponent<EnemyShield>();
+
         p0 = p1 = pos;
-
         InitMovement();
-
-        // Cache GameObject & Material of each Part in parts
-        Transform t;
-        foreach (Part prt in parts)
-        {
-            t = transform.Find(prt.name);
-            if (t != null)
-            {
-                prt.go = t.gameObject;
-                prt.mat = prt.go.GetComponent<Renderer>().material;
-            }
-        }
     }
 
     void InitMovement()
     {
-        p0 = p1; // Set p0 to the old p1
-        // Assign a new on-screen location to p1
+        p0 = p1; // the old end becomes the new start point
+        // find a new onscreen location to move toward
         float widMinRad = bndCheck.camWidth - bndCheck.radius;
         float hgtMinRad = bndCheck.camHeight - bndCheck.radius;
         p1.x = Random.Range(-widMinRad, widMinRad);
         p1.y = Random.Range(-hgtMinRad, hgtMinRad);
 
-        // Reset the time
+        // Make sure that it moves to a different quadrant of the screen
+        if(p0.x * p1.x > 0 && p0.y*p1.y > 0)
+        {
+            if (Mathf.Abs(p0.x) > Mathf.Abs(p0.y))
+            {
+                p1.x *= -1;
+            } else
+            {
+                p1.y *= -1;
+            }
+        }
+
         timeStart = Time.time;
+
     }
 
     public override void Move()
     {
-        // This completely overrides Enemy.Move() with a linear interpolation
         float u = (Time.time - timeStart) / duration;
 
         if (u >= 1)
@@ -74,130 +58,70 @@ public class Enemy_4 : Enemy {
             InitMovement();
             u = 0;
         }
-
-        u = 1 - Mathf.Pow(1 - u, 2); // Apply Ease Out easing to u
-        pos = ((1 - u) * p0) + (u * p1);// Simple linear interpolation
+        u = u - 0.15f * Mathf.Sin(u * 2 * Mathf.PI);  //add in some Sine easing
+        pos = (1 - u) * p0 + u * p1;                  // simple Linear interpolation
     }
 
-    // These two functions find a Part in parts based on name or GameObject
-    Part FindPart(string n)
-    {
-        foreach (Part prt in parts)
+    /// <summary
+    /// Enemy_4 Collisions are handled differently from other Enemy subclasses
+    ///   to enable protection by EnemyShields.
+    /// </summary
+    /// <param name="coll"</param
+    void OnCollisionEnter(Collision coll)
+    {                                  // b
+        GameObject otherGO = coll.gameObject;
+
+        // Make sure this was hit by a ProjectileHero
+        ProjectileHero p = otherGO.GetComponent<ProjectileHero>();
+        if (p != null)
         {
-            if(prt.name == n)
+            // Destroy the ProjectileHero regardless of bndCheck.isOnScreen
+            Destroy(otherGO);                                               
+
+            // Only damage this Enemy if it’s on screen
+            if (bndCheck.isOnScreen)
             {
-                return (prt);
-            }
-        }
-        return (null);
-    }
-    Part FindPart(GameObject go)
-    {
-        foreach(Part prt in parts)
-        {
-            if(prt.go == go)
-            {
-                return (prt);
-            }
-        }
-        return (null);
-    }
-
-    // These functions return true if the Part has been destroyed
-    bool Destroyed(GameObject go)
-    {
-        return (Destroyed(FindPart(go)));
-    }
-    bool Destroyed(string n)
-    {
-        return (Destroyed(FindPart(n)));
-    }
-    bool Destroyed(Part prt)
-    {
-        if (prt == null) // If no real ph was passed in
-        {
-            return (true); // Return true (meaning yes, it was destroyed)
-        }
-        // Returns the result of the comparison: prt.health <= 0
-        // If prt.health is 0 or less, returns true (yes, it was destroyed)
-        return (prt.health <= 0);
-    }
-
-    // This changes the color of just one Part to red instead of the whole ship.
-    void ShowLocalizedDamage(Material m)
-    {
-        m.color = Color.red;
-        damageDoneTime = Time.time + showDamageDuration;
-        showingDamage = true;
-    }
-
-    // This will override the OnCollisionEnter that is part of Enemy.cs.
-    private void OnCollisionEnter(Collision coll)
-    {
-        GameObject other = coll.gameObject;
-        switch (other.tag)
-        {
-            case "ProjectileHero":
-                ProjectileHero p = other.GetComponent<ProjectileHero>();
-                // IF this Enemy is off screen, don't damage it.
-                //if (!bndCheck.isOnScreen)
-                //{
-                //    Destroy(other);
-                //    break;
-                //}
-
-                // Hurt this Enemy
-                GameObject goHit = coll.contacts[0].thisCollider.gameObject;
-                Part prtHit = FindPart(goHit);
-                if(prtHit == null) // If prtHit wasn't found...
-                {
-                    goHit = coll.contacts[0].otherCollider.gameObject;
-                    prtHit = FindPart(goHit);
+                // Find the GameObject of this Enemy_4 that was actually hit
+                GameObject hitGO = coll.contacts[0].thisCollider.gameObject;   
+                if (hitGO == otherGO)
+                {                                     
+                    hitGO = coll.contacts[0].otherCollider.gameObject;
                 }
-                // Check whether this part is still protected
-                if (prtHit.protectedBy != null)
-                {
-                    foreach(string s in prtHit.protectedBy)
+
+                // Get the damage amount from the Main WEAP_DICT.
+                float dmg = Main.GET_WEAPON_DEFINITION(p.type).damageOnHit;
+
+                // Find the EnemyShield that was hit (if there was one)
+                bool shieldFound = false;
+                foreach (EnemyShield es in allShields)
+                {                   
+                    if (es.gameObject == hitGO)
                     {
-                        // If one of the protecting parts hasn't been destroyed...
-                        if (!Destroyed(s))
-                        {
-                            // ...then don't damage this part yet
-                            Destroy(other); // Destroy the ProjectileHero
-                            return; // return before damaging Enemy_4
-                        }
+                        es.TakeDamage(dmg);
+                        shieldFound = true;
                     }
                 }
+                if (!shieldFound) thisShield.TakeDamage(dmg);             
 
-                // It's not protected, so make it take damage
-                // Get the damage amount from the Projectile.type and Main.W_DEFS
-                prtHit.health -= Main.GET_WEAPON_DEFINITION(p.type).damageOnHit;
-                // Show damage on the part
-                ShowLocalizedDamage(prtHit.mat);
-                if(prtHit.health <= 0)
+                // If thisShield is still active, then it has not been destroyed
+                if (thisShield.isActive) return;                            
+
+                // This ship was destroyed so tell Main about it      
+                if (!calledShipDestroyed)
                 {
-                    // Instead of destroying this enemy, disable the damaged part
-                    prtHit.go.SetActive(false);
-                }
-                // Check to see if the whole ship is destroyed
-                bool allDestroyed = true; // Assume it is destroyed
-                foreach (Part prt in parts)
-                {
-                    if (!Destroyed(prt)) // If a part still exists...
-                    {
-                        allDestroyed = false; // ...change allDestroyed to false
-                        break; // & break out of the foreach loop
-                    }
-                }
-                if (allDestroyed) // If it IS completely destroyed...
-                {
-                    // ...tell the Main singleton that this ship was destroyed
                     Main.SHIP_DESTROYED(this);
-                    // Destroy this Enemy
-                    Destroy(this.gameObject);
+                    calledShipDestroyed = true;
                 }
-                Destroy(other); // Destroy the ProjectileHero
-                break;
+
+                // Destroy this Enemy_4
+                Destroy(gameObject);
+            }
+        }
+        else
+        {
+            Debug.Log("Enemy_4 hit by non-ProjectileHero: " + otherGO.name);
         }
     }
+
+
 }
