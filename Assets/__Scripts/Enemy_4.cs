@@ -192,7 +192,7 @@ public class Enemy_4 : Enemy {
                 if (allDestroyed) // If it IS completely destroyed...
                 {
                     // ...tell the Main singleton that this ship was destroyed
-                    Main.S.ShipDestroyed(this);
+                    Main.SHIP_DESTROYED(this);
                     // Destroy this Enemy
                     Destroy(this.gameObject);
                 }

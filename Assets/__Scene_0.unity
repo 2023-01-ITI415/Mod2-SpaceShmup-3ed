@@ -189,7 +189,7 @@ PrefabInstance:
     - target: {fileID: 3923796494938685823, guid: ae4feb5a0d0624529b1f5beb5cbea392,
         type: 3}
       propertyPath: _type
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8456642093769543252, guid: ae4feb5a0d0624529b1f5beb5cbea392,
         type: 3}
@@ -533,9 +533,9 @@ MonoBehaviour:
     weaponModelPrefab: {fileID: 1899541879965282, guid: 59a4640edad59f94a87c1d235355cb6a,
       type: 3}
     projectileColor: {r: 0.007843138, g: 0.9607844, b: 0.9960785, a: 1}
-    damageOnHit: 3
+    damageOnHit: 5
     continuousDamage: 0
-    delayBetweenShots: 0.4
+    delayBetweenShots: 0.25
     velocity: 50
   - type: 6
     letter: 0
@@ -1235,10 +1235,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 068597007208b5040be849aebe1595f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poi: {fileID: 1342965577}
+  playerTrans: {fileID: 1342965580}
   panels:
-  - {fileID: 625516129}
-  - {fileID: 209590096}
+  - {fileID: 625516133}
+  - {fileID: 209590100}
   scrollSpeed: -30
   motionMult: 0.25
 --- !u!64 &1295224116

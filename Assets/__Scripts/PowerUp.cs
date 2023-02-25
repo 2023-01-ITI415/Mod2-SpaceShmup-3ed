@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PowerUp : MonoBehaviour {
+public class PowerUp : MonoBehaviour
+{
 
     [Header("Inscribed")]
     // This is an unusual but handy use of Vector2s.
-    [Tooltip ("x holds a min value and y a max value for a Random.Range() call")]
+    [Tooltip("x holds a min value and y a max value for a Random.Range() call")]
     public Vector2 rotMinMax = new Vector2(15, 90);
     [Tooltip("x holds a min value and y a max value for a Random.Range() call")]
     public Vector2 driftMinMax = new Vector2(.25f, 2);
@@ -15,7 +16,7 @@ public class PowerUp : MonoBehaviour {
     public float fadeTime = 4f; // Seconds it will then fade
 
     [Header("Dynamic")]
-    public eWeaponType type; // The type of the PowerUp 
+    public eWeaponType _type; // The type of the PowerUp 
     public GameObject cube; // Reference to the Cube child
     public TextMesh letter; // Reference to the TextMesh
     public Vector3 rotPerSecond; // Euler rotation speed
@@ -27,7 +28,7 @@ public class PowerUp : MonoBehaviour {
 
     private void Awake()
     {
-        // Find the Cube reference
+        // Find the Cube reference - there is only a single child
         cube = transform.GetChild(0).gameObject;
 
         // Find the TextMesh and other components
@@ -36,7 +37,7 @@ public class PowerUp : MonoBehaviour {
         bndCheck = GetComponent<BoundsCheck>();
         cubeMat = cube.GetComponent<Renderer>().material;
 
-        // Set a random elocity
+        // Set a random velocity
         Vector3 vel = Random.onUnitSphere; // Get Random XYZ velocity
         // Random.onUnitSphere gives you a vector point that is somewhere on
         // the surface of the sphere with a radius of 1m around the origin
@@ -94,6 +95,12 @@ public class PowerUp : MonoBehaviour {
         }
     }
 
+    public eWeaponType type
+    {
+        get { return _type; }
+        set { SetType(value); }
+    }
+
     public void SetType(eWeaponType wt)
     {
         // Grab the WeaponDefinition from Main
@@ -102,7 +109,7 @@ public class PowerUp : MonoBehaviour {
         cubeMat.color = def.color;
         //letter.color = def.color; // We could colorize the letter too
         letter.text = def.letter; // Set the letter that is shown
-        type = wt; // Finally actually set the type
+        _type = wt; // Finally actually set the type
     }
 
     public void AbsorbedBy(GameObject target)
